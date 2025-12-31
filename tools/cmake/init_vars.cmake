@@ -1,0 +1,8 @@
+set(BUILDENGINE_TOOLS_CMAKE_SRC_DIR "${CMAKE_CURRENT_LIST_DIR}")
+set(BUILDENGINE_SCRIPTS_CMAKE_DIR "${BUILDENGINE_SCRIPTS_DIR}/cmake")
+file(MAKE_DIRECTORY "${BUILDENGINE_SCRIPTS_CMAKE_DIR}")
+get_filename_component(CMAKE_EXECUTABLE "${CMAKE_COMMAND}" NAME)
+set(_env_cmake_list "${ENV_RUNNER} ${CMAKE_EXECUTABLE}")
+set(_env_cmake_silent_list "${ENV_RUNNER_SILENT} ${CMAKE_EXECUTABLE}")
+prepare_command(ENV_CMAKE_COMMAND "${_env_cmake_list}")
+prepare_command(ENV_CMAKE_SILENT_COMMAND "${_env_cmake_silent_list}")
