@@ -18,4 +18,4 @@ if(NOT CMAKE_RESULT EQUAL 0)
 	message(FATAL_ERROR "Configuring @_CMAKE_COMPONENT@ failed (exit ${CMAKE_RESULT}). See output above for details.")
 endif()
 
-message(STATUS "Configured @_CMAKE_COMPONENT@")
+message(STATUS "@_INDENT_@Configured @_CMAKE_COMPONENT@")

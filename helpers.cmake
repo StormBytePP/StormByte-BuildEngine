@@ -186,10 +186,6 @@ endfunction()
 ##    may produce unexpected output.
 ##
 function(list_join _out_var _raw_string _separator)
-	if(ARGC GREATER 4)
-		message(FATAL_ERROR "list_join requires output variable name, raw string and separator (optional a boolean to preserve quotes)")
-	endif()
-
 	set(result "\"")
 	set(in_single_quote FALSE)
 	set(in_double_quote FALSE)

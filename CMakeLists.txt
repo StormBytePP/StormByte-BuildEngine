@@ -1,3 +1,5 @@
+message(STATUS "Bootstrapping StormByte-BuildEngine (https://github.com/StormBytePP/StormByte-BuildEngine)")
+
 # Initialize directory variables
 include(init_vars.cmake)
 
