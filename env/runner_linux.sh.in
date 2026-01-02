@@ -2,6 +2,7 @@
 
 update_pkg_config="@PKG_CONFIG@"
 update_pkgconfig_path="@PKG_CONFIG_PATH@"
+# C/C++ compiler flags are no longer used by environment, they are passed directly to meson/cmake
 update_cflags="@CFLAGS@"
 update_cxxflags="@CXXFLAGS@"
 update_ldflags="@LDFLAGS@"
@@ -19,21 +20,21 @@ if [ -n "$update_pkgconfig_path" ]; then
 	fi
 fi
 
-if [ -n "$update_cflags" ]; then
-	if [ -n "$CFLAGS" ]; then
-		export CFLAGS="$update_cflags $CFLAGS"
-	else
-		export CFLAGS="$update_cflags"
-	fi
-fi
+# if [ -n "$update_cflags" ]; then
+# 	if [ -n "$CFLAGS" ]; then
+# 		export CFLAGS="$update_cflags $CFLAGS"
+# 	else
+# 		export CFLAGS="$update_cflags"
+# 	fi
+# fi
 
-if [ -n "$update_cxxflags" ]; then
-	if [ -n "$CXXFLAGS" ]; then
-		export CXXFLAGS="$update_cxxflags $CXXFLAGS"
-	else
-		export CXXFLAGS="$update_cxxflags"
-	fi
-fi
+# if [ -n "$update_cxxflags" ]; then
+# 	if [ -n "$CXXFLAGS" ]; then
+# 		export CXXFLAGS="$update_cxxflags $CXXFLAGS"
+# 	else
+# 		export CXXFLAGS="$update_cxxflags"
+# 	fi
+# fi
 
 if [ -n "$update_ldflags" ]; then
 	if [ -n "$LDFLAGS" ]; then
