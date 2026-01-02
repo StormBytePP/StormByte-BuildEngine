@@ -45,7 +45,6 @@ function(create_meson_setup_file _file _component _src_dir _build_dir _install_p
 		_MESON_OPTIONS
 		"--prefix=${_install_prefix} "
 		"--libdir=${CMAKE_INSTALL_LIBDIR} "
-		"-Dbuildtype=${CMAKE_BUILD_TYPE_LOWERCASE} "
 		"${_MESON_OPTIONS}"
 	)
 
