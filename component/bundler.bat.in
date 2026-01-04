@@ -1,8 +1,3 @@
-REM Arguments passed from CMake:
-REM @COMPONENT@
-REM @DEST_LIBRARY@
-REM @ADD_LIBRARIES@
-
 @echo off
 
 echo "Combining static libraries for @COMPONENT@"
