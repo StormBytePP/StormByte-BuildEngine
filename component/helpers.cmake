@@ -382,13 +382,86 @@ function(rename_static_library _rename_file _component _badname)
 	set(_LIBRARY_BAD_PATH "${BUILDMASTER_INSTALL_LIBDIR}/${_badname}")
 	library_import_static_hint(_LIBRARY_GOOD_PATH "${_component}")
 	set(_LIBRARY_STAGE_INSTALL "${_component}_install")
-	set(_LIBRARY_RENAME_FILE "${BUILDMASTER_SCRIPTS_LIBRARY_DIR}/${_badname}_rename.cmake")
+	set(_LIBRARY_RENAME_FILE "${BUILDMASTER_SCRIPTS_COMPONENT_DIR}/${_badname}_rename.cmake")
 
 	configure_file(
-		"${BUILDMASTER_TOOLS_LIBRARY_SRC_DIR}/rename_static_library.cmake.in"
+		"${BUILDMASTER_COMPONENT_SRC_DIR}/rename_static_library.cmake.in"
 		"${_LIBRARY_RENAME_FILE}"
 		@ONLY
 	)
 
 	set(${_rename_file} "${_LIBRARY_RENAME_FILE}" PARENT_SCOPE)
+endfunction()
+
+## create_bundle_static_libraries(_bundle_file, _component, _libraries)
+##
+## Generate a platform-specific "bundler" script that aggregates one or
+## more static library files for a component. The function writes the
+## generated script under `${BUILDMASTER_SCRIPTS_COMPONENT_DIR}` and
+## returns its path via the parent-scope variable named by
+## `_bundle_file`.
+##
+## Parameters
+##  - _bundle_file: parent-scope variable name that will receive the
+##                  resulting bundle script path.
+##  - _component: short component identifier used to build filenames.
+##  - _libraries: CMake list of full paths to library files to include in the bundle.
+##
+## Behavior
+##  - Produces a safe filename derived from `_component` to name the script.
+##  - On MSVC a Windows batch file (`*_bundler.bat`) is generated where
+##    the provided full-path libraries are expanded into a single
+##    space-separated string consumed by the template.
+##  - On non-MSVC platforms a shell script (`*_bundler.sh`) is
+##    generated which contains `ADDLIB <full-path>` lines for each
+##    library; the script is made executable (`chmod +x`).
+##  - The configured script is created from the templates
+##    `bundler.bat.in` or `bundler.sh.in` located in
+##    `${BUILDMASTER_COMPONENT_SRC_DIR}`.
+##
+## Notes
+##  - `_libraries` must contain full paths (absolute or relative) to the
+##    actual library files; the function will not prefix or alter them.
+##  - The path to the generated script is exported to the parent scope
+##    via the variable named by `_bundle_file`.
+function(create_bundle_static_libraries _bundle_file _component _libraries)
+	# Generate safe filename
+	sanitize_for_filename(_BUNDLE_COMPONENT_SAFE "${_component}")
+
+	# Compute output path
+	library_import_static_hint(LIBRARY_PATH "${_component}")
+
+	# Configure bundler script
+	if(MSVC)
+		set(_BUNDLE_SCRIPT_FILE "${BUILDMASTER_SCRIPTS_COMPONENT_DIR}/${_BUNDLE_COMPONENT_SAFE}_bundler.bat")
+		# For MSVC we expand the list into a space-separated string
+		set(ADD_LIBRARIES "")
+		foreach(lib IN LISTS _libraries)
+			string(APPEND ADD_LIBRARIES "${lib} ")
+		endforeach()
+		configure_file(
+			"${BUILDMASTER_COMPONENT_SRC_DIR}/bundler.bat.in"
+			"${_BUNDLE_SCRIPT_FILE}"
+			@ONLY
+		)
+	else()
+		set(_BUNDLE_SCRIPT_FILE "${BUILDMASTER_SCRIPTS_COMPONENT_DIR}/${_BUNDLE_COMPONENT_SAFE}_bundler.sh")
+		# In linux we expect ADDLIB lib\n
+		set(ADD_LIBRARIES "")
+		foreach(lib IN LISTS _libraries)
+			string(APPEND ADD_LIBRARIES "ADDLIB ${lib}
+") # Real line break
+		endforeach()
+		configure_file(
+			"${BUILDMASTER_COMPONENT_SRC_DIR}/bundler.sh.in"
+			"${_BUNDLE_SCRIPT_FILE}"
+			@ONLY
+		)
+
+		# We need to give it execute permissions
+		file(CHMOD "${_BUNDLE_SCRIPT_FILE}" PERMISSIONS OWNER_EXECUTE GROUP_EXECUTE WORLD_EXECUTE)
+	endif()
+
+	# Set output variables
+	set(${_bundle_file} "${_BUNDLE_LIBRARY_PATH}" PARENT_SCOPE)
 endfunction()

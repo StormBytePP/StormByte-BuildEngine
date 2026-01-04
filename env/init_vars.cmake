@@ -31,12 +31,7 @@ if(NOT BUILDMASTER_CONFIGURED)
 		# Ensure the generated silent runner has execute permissions so it can be
 		# invoked directly by execute_process(). Some platforms require the
 		# executable bit even when a shebang is present.
-		execute_process(
-			COMMAND ${CMAKE_COMMAND} -E chmod 0755 "${BUILDMASTER_SCRIPTS_ENV_DIR}/runner_silent.sh"
-			RESULT_VARIABLE _chmod_result
-			OUTPUT_QUIET
-			ERROR_QUIET
-		)
+		file(CHMOD "${BUILDMASTER_SCRIPTS_ENV_DIR}/runner_silent.sh" PERMISSIONS OWNER_EXECUTE GROUP_EXECUTE WORLD_EXECUTE)
 	endif()
 
 	# Detect number of processors
