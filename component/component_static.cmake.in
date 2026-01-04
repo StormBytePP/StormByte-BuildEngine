@@ -5,6 +5,8 @@ if(NOT TARGET @_LIBRARY_NAME@)
 
 	add_library(@_LIBRARY_NAME@ INTERFACE)
 
+	target_include_directories(@_LIBRARY_NAME@ SYSTEM INTERFACE "@_LIBRARY_SRC_DIR@")
+
 	set(libs "@_LIBRARY_COMPONENT_NAMES@")
 	set(lib_files "@_LIBRARY_COMPONENT_FILES@")
 
