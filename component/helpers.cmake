@@ -465,7 +465,7 @@ function(create_bundle_static_libraries _bundle_file _component _libraries)
 		# invoked directly by execute_process(). Some platforms require the
 		# executable bit even when a shebang is present.
 		execute_process(
-			COMMAND ${CMAKE_COMMAND} -E chmod 0755 "${_BUNDLE_SCRIPT_FILE}"
+			COMMAND ${ENV_RUNNER_SILENT} chmod +x "${_BUNDLE_SCRIPT_FILE}"
 			RESULT_VARIABLE _chmod_result
 			OUTPUT_QUIET
 			ERROR_QUIET
