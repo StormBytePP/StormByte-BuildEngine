@@ -1,8 +1,5 @@
 message(STATUS "Bootstrapping StormByte-BuildMaster (https://github.com/StormBytePP/StormByte-BuildMaster)")
 
-# Optimizations
-include(cmake/optimizations.cmake)
-
 # Initialize directory variables
 include(init_vars.cmake)
 
@@ -16,6 +13,10 @@ include(env/propagate_vars.cmake)
 # Configure build tools and propagate variables
 add_subdirectory(tools)
 include(tools/propagate_vars.cmake)
+
+# Configure component components and propagate variables
+add_subdirectory(component)
+include(component/propagate_vars.cmake)
 
 # Propagate variables to parent scope
 include(propagate_vars.cmake)
