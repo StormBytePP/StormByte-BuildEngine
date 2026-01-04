@@ -14,18 +14,20 @@
 ##  - _src_dir: path to the component source directory.
 ##  - _build_dir: path to the component build directory.
 ##  - _meson_options: list of Meson options to pass to the component's setup.
-##  - _output_library: path to the built library/artifact produced by the
-##                     component (exported into `_MESON_OUTPUT_LIBRARY` for
-##                     use inside the templates).
+##  - _library_mode: either `static` or `shared` — controls template behavior.
+##  - _output_libraries: one or more full paths (or a single path) to the
+##                       built library/artifact(s) produced by the component.
+##                       Exported into `_MESON_OUTPUT_LIBRARIES` for use inside
+##                       the templates.
 ##  - _indent_level (optional, passed as ARGV9): number of tab characters
 ##                   to prepend to generated lines; when provided `_INDENT_`
 ##                   is set for use inside templates. This optional argument
-##                   should come after `_output_library`.
+##                   should come after `_output_libraries`.
 ##
 ### Behaviour:
 ##  - Appends `_build` and `_install` to `_component` to form stage names.
 ##  - Sets up template variables: `_MESON_COMPONENT_TITLE`, `_MESON_SRC_DIR`,
-##    `_MESON_BUILD_DIR`, `_MESON_OUTPUT_LIBRARY` and `_MESON_OPTIONS` (the
+##    `_MESON_BUILD_DIR`, `_MESON_OUTPUT_LIBRARIES` and `_MESON_OPTIONS` (the
 ##    `_meson_options` list is joined with a space; the Meson setup template
 ##    will receive `--prefix`/`--libdir` arguments as appropriate when
 ##    generating the runner invocation).
@@ -49,14 +51,22 @@
 ### Example (conceptual):
 ##  create_meson_stages(setup_file compile_file install_file mylib "My Lib"
 ##                      /path/to/src /path/to/build "${meson_options}"
-##                      /path/to/mylibname.so 1
-function(create_meson_stages _file_setup _file_compile _file_install _component _component_title _src_dir _build_dir _meson_options _output_libraries)
+##                      shared "/path/to/mylibname.so" 1
+function(create_meson_stages _file_setup _file_compile _file_install _component _component_title _src_dir _build_dir _meson_options _library_mode _output_libraries)
 	# Optional indent level
-	if(ARGC GREATER 9)
-		set(_indent_level "${ARGV9}")
+	if(ARGC GREATER 10)
+		set(_indent_level "${ARGV10}")
 		string(REPEAT "\t" ${_indent_level} _INDENT_)
 	else()
 		set(_INDENT_ "")
+	endif()
+
+	if(${_library_mode} STREQUAL "static")
+		set(_MESON_LIBRARY_TYPE "static")
+	elseif(${_library_mode} STREQUAL "shared")
+		set(_MESON_LIBRARY_TYPE "shared")
+	else()
+		message(FATAL_ERROR "Unknown library mode '${_library_mode}' in create_meson_stages")
 	endif()
 
 	# Original logic

@@ -186,9 +186,9 @@ function(create_component _library_create_file _component _component_title _src_
 	endif()
 
 	if(_build_system STREQUAL "cmake")
-		create_cmake_stages(_LIBRARY_CONFIGURE_FILE _LIBRARY_BUILD_FILE _LIBRARY_INSTALL_FILE "${_component}" "${_component_title}" "${_src_dir}" "${_build_dir}" "${_options}" "${_LIBRARY_COMPONENT_FILES}" "${_indent_level}")
+		create_cmake_stages(_LIBRARY_CONFIGURE_FILE _LIBRARY_BUILD_FILE _LIBRARY_INSTALL_FILE "${_component}" "${_component_title}" "${_src_dir}" "${_build_dir}" "${_options}" "${_library_mode}" "${_LIBRARY_COMPONENT_FILES}" "${_indent_level}")
 	elseif(_build_system STREQUAL "meson")
-		create_meson_stages(_LIBRARY_CONFIGURE_FILE _LIBRARY_BUILD_FILE _LIBRARY_INSTALL_FILE "${_component}" "${_component_title}" "${_src_dir}" "${_build_dir}" "${_options}" "${_LIBRARY_COMPONENT_FILES}" "${_indent_level}")
+		create_meson_stages(_LIBRARY_CONFIGURE_FILE _LIBRARY_BUILD_FILE _LIBRARY_INSTALL_FILE "${_component}" "${_component_title}" "${_src_dir}" "${_build_dir}" "${_options}" "${_library_mode}" "${_LIBRARY_COMPONENT_FILES}" "${_indent_level}")
 	else()
 		message(FATAL_ERROR "Unknown build system '${_build_system}' in create_library")
 	endif()

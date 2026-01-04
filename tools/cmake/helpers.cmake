@@ -14,18 +14,20 @@
 ##  - _src_dir: path to the component source directory.
 ##  - _build_dir: path to the component build directory.
 ##  - _options: list of CMake options to pass to the component's configure.
-##  - _output_library: full path to the built library/artifact produced by the
-##                     component (exported into `_CMAKE_OUTPUT_LIBRARY` for
-##                     use inside the templates).
-##  - _indent_level (optional, passed as ARGV9): number of tab characters
+##  - _library_mode: either `static` or `shared` — controls template behavior.
+##  - _output_libraries: one or more full paths (or a single path) to the
+##                       built library/artifact(s) produced by the component.
+##                       This value is exported into `_CMAKE_OUTPUT_LIBRARIES`
+##                       for use inside the templates.
+##  - _indent_level (optional, passed as ARGV10): number of tab characters
 ##                  to prepend to generated lines; when provided an
 ##                  `_CMAKE_INDENT_` variable is set for use inside templates.
-##                  This optional argument should come after `_output_library`.
+##                  This optional argument should come after `_output_libraries`.
 ##
 ### Behaviour:
 ##  - Appends `_build` and `_install` to `_component` to form stage names.
 ##  - Sets up template variables: `_CMAKE_COMPONENT_TITLE`, `_CMAKE_SRC_DIR`,
-##    `_CMAKE_BUILD_DIR`, `_CMAKE_OUTPUT_LIBRARY` and `_CMAKE_OPTIONS` (the
+##    `_CMAKE_BUILD_DIR`, `_CMAKE_OUTPUT_LIBRARIES` and `_CMAKE_OPTIONS` (the
 ##    `_options` list is joined with "\n\t\t").
 ##  - Calls `sanitize_for_filename` to produce `_CMAKE_COMPONENT_SAFE` used
 ##    to create three output paths inside `${BUILDMASTER_SCRIPTS_CMAKE_DIR}`:
@@ -51,14 +53,22 @@
 ### Example (conceptual):
 ##  create_cmake_stages(cfg_file build_file install_file mylib "My Lib"
 ##                      /path/to/src /path/to/build "${options}"
-##                      /path/to/mylibname.so 1
-function(create_cmake_stages _file_configure _file_compile _file_install _component _component_title _src_dir _build_dir _options _output_libraries)
+##                      shared "/path/to/mylibname.so" 1
+function(create_cmake_stages _file_configure _file_compile _file_install _component _component_title _src_dir _build_dir _options _library_mode _output_libraries)
 	# Optional indent level
-	if(ARGC GREATER 9)
-		set(_indent_level "${ARGV9}")
+	if(ARGC GREATER 10)
+		set(_indent_level "${ARGV10}")
 		string(REPEAT "\t" ${_indent_level} _CMAKE_INDENT_)
 	else()
 		set(_CMAKE_INDENT_ "")
+	endif()
+
+	if(${_library_mode} STREQUAL "static")
+		set(_CMAKE_SHARED_MODE "OFF")
+	elseif(${_library_mode} STREQUAL "shared")
+		set(_CMAKE_SHARED_MODE "ON")
+	else()
+		message(FATAL_ERROR "Unknown library mode '${_library_mode}' in create_cmake_stages")
 	endif()
 
 	set(_CMAKE_COMPONENT_TITLE "${_component_title}")
