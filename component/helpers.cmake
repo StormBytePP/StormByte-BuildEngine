@@ -458,8 +458,15 @@ function(create_bundle_static_libraries _bundle_file _component _libraries)
 			@ONLY
 		)
 
-		# We need to give it execute permissions
-		file(CHMOD "${_BUNDLE_SCRIPT_FILE}" PERMISSIONS OWNER_EXECUTE GROUP_EXECUTE WORLD_EXECUTE)
+		# Ensure the generated runner has execute permissions so it can be
+		# invoked directly by execute_process(). Some platforms require the
+		# executable bit even when a shebang is present.
+		execute_process(
+			COMMAND ${CMAKE_COMMAND} -E chmod 0755 "${_BUNDLE_SCRIPT_FILE}"
+			RESULT_VARIABLE _chmod_result
+			OUTPUT_QUIET
+			ERROR_QUIET
+		)
 	endif()
 
 	# Set output variables
