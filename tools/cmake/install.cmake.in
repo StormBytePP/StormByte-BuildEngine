@@ -8,5 +8,5 @@ add_custom_command(
 
 add_custom_target(
 	@_CMAKE_STAGE_INSTALL@
-	DEPENDS @_CMAKE_OUTPUT_LIBRARY@
+	DEPENDS @_CMAKE_OUTPUT_LIBRARIES@
 )
