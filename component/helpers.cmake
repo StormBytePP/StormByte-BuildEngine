@@ -473,5 +473,5 @@ function(create_bundle_static_libraries _bundle_file _component _libraries)
 	endif()
 
 	# Set output variables
-	set(${_bundle_file} "${_BUNDLE_LIBRARY_PATH}" PARENT_SCOPE)
+	set(${_bundle_file} "${_BUNDLE_SCRIPT_FILE}" PARENT_SCOPE)
 endfunction()
