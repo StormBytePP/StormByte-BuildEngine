@@ -77,6 +77,12 @@ function(create_meson_stages _file_setup _file_compile _file_install _component 
 	set(_MESON_BUILD_DIR "${_build_dir}")
 	set(_MESON_SRC_DIR "${_src_dir}")
 	set(_MESON_OUTPUT_LIBRARIES "${_output_libraries}")
+	# Enable LTO only on Release and if CMAKE_INTERPROCEDURAL_OPTIMIZATION is set
+	if(CMAKE_BUILD_TYPE STREQUAL "Release" AND CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELEASE)
+		set(LTO_ENABLED "true")
+	else()
+		set(LTO_ENABLED "false")
+	endif()
 
 	list_join(_MESON_OPTIONS "${_meson_options}" " ")
 
