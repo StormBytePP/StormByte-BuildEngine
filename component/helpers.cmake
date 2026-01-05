@@ -151,7 +151,6 @@ function(create_component _library_create_file _component _component_title _srcd
 	set(_LIBRARY_NAME "${_component}")
 	string(TOLOWER "${_library_mode}" _library_mode)
 	set(_LIBRARY_STAGE_INSTALL "${_component}_install")
-	set(_LIBRARY_SRCDIR "${_srcdir}")
 	if(NOT _dependency STREQUAL "")
 		set(_LIBRARY_CONFIGURE_TARGET "${_component}_configure")
 		set(_LIBRARY_BUILD_TARGET "${_component}_build")
