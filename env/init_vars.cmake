@@ -1,5 +1,5 @@
-set(BUILDMASTER_ENVDIR "${CMAKE_CURRENT_LIST_DIR}")
 if(NOT BUILDMASTER_CONFIGURED)
+	set(BUILDMASTER_ENV_SRCDIR "${CMAKE_CURRENT_LIST_DIR}")
 	set(BUILDMASTER_SCRIPTS_ENVDIR "${BUILDMASTER_BINDIR}/scripts/env")
 	if(WIN32)
 		# store as a list: interpreter and its first arg, then the script path
@@ -10,7 +10,7 @@ if(NOT BUILDMASTER_CONFIGURED)
 		set(ENV_RUNNER_SILENT_CMD "cmd /C ${BUILDMASTER_SCRIPTS_ENVDIR}/runner_silent.bat")
 		# Create silent runner
 		configure_file(
-			"${BUILDMASTER_ENVDIR}/runner_windows_silent.bat.in"
+			"${BUILDMASTER_ENV_SRCDIR}/runner_windows_silent.bat.in"
 			"${BUILDMASTER_SCRIPTS_ENVDIR}/runner_silent.bat"
 			@ONLY
 		)
@@ -24,7 +24,7 @@ if(NOT BUILDMASTER_CONFIGURED)
 		set(ENV_RUNNER_SILENT_CMD "/bin/sh ${BUILDMASTER_SCRIPTS_ENVDIR}/runner_silent.sh")
 		# Create silent runner
 		configure_file(
-			"${BUILDMASTER_ENVDIR}/runner_linux_silent.sh.in"
+			"${BUILDMASTER_ENV_SRCDIR}/runner_linux_silent.sh.in"
 			"${BUILDMASTER_SCRIPTS_ENVDIR}/runner_silent.sh"
 			@ONLY
 		)
