@@ -62,8 +62,9 @@ if(NOT PKG_CONFIG_WORKING)
 		message(FATAL_ERROR "Building pkgconf failed:\n${_pkgconf_build_err}")
 	endif()
 
-	# Set pkgconf executable path
+	# Set pkgconf executable path and config path
 	set(PKG_CONFIG "${BUILDMASTER_INSTALL_BINDIR}/pkgconf${CMAKE_EXECUTABLE_SUFFIX}")
+	set(PKG_CONFIG_PATH "${BUILDMASTER_INSTALL_LIBDIR}/pkgconfig")
 
 	# Test pkgconf/pkg-config version
 	execute_process(

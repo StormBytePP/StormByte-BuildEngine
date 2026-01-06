@@ -3,3 +3,6 @@ if(DEFINED PKG_CONFIG)
 		"set(PKG_CONFIG \"${PKG_CONFIG}\")\n"
 	)
 endif()
+file(APPEND "${BUILDMASTER_TOOLCHAIN_FILE}"
+	"set(PKG_CONFIG_PATH \"${PKG_CONFIG_PATH}\")\n"
+)
