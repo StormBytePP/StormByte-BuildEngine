@@ -64,7 +64,6 @@ if(NOT PKG_CONFIG_WORKING)
 
 	# Set pkgconf executable path and config path
 	set(PKG_CONFIG "${BUILDMASTER_INSTALL_BINDIR}/pkgconf${CMAKE_EXECUTABLE_SUFFIX}")
-	set(PKG_CONFIG_PATH "${BUILDMASTER_INSTALL_LIBDIR}/pkgconfig")
 
 	# Test pkgconf/pkg-config version
 	execute_process(
@@ -85,6 +84,9 @@ if(NOT PKG_CONFIG_WORKING)
 		update_env_runner()
 	endif()
 endif()
+
+# In any case, set pkg-config path
+set(PKG_CONFIG_PATH "${BUILDMASTER_INSTALL_LIBDIR}/pkgconfig")
 
 # Update out part of the toolchain file
 include("${CMAKE_CURRENT_LIST_DIR}/update_toolchain.cmake")
