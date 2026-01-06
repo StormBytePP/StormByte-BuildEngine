@@ -15,6 +15,8 @@
 - [Why Build Master exists](#why-build-master-exists)
 - [Design goals (brief)](#design-goals-brief)
 - [How to use (quick start)](#how-to-use-quick-start)
+ - [Output verbosity](#output-verbosity)
+ - [Recursive configurations](#recursive-configurations)
 - [Two usage modes](#two-usage-modes)
   - [Simple mode — high level](#simple-mode---high-level)
   - [Advanced mode — explicit stages](#advanced-mode---explicit-stages)
@@ -118,6 +120,14 @@ Notes:
 - After `include(${OUT_FILE})`, the imported targets and stage targets (`<component>_build`, `<component>_install`) become available.
 
 ---
+
+## Output verbosity
+
+By default Build Master produces minimal, concise output: a single brief line for each stage — configure, build and install — so that CMake output remains compact when managing many components. To enable full, verbose output for the configure and build stages set the environment variable `BUILDMASTER_DEBUG` to `1`. When `BUILDMASTER_DEBUG` is `1` Build Master will show the underlying configure and build tool output (stdout/stderr) to help diagnose configure-time or build-time problems.
+
+## Recursive configurations
+
+Build Master is designed to support recursive usage: an external CMake project may itself use Build Master to orchestrate its dependencies, and those dependencies may also use Build Master, recursively. This is possible because Build Master is initialized only once (for example by `add_subdirectory(buildmaster)`) and all recursive instances share the same installation location (the unified `BUILDMASTER_INSTALL_DIR`). Nested projects therefore reuse the same initialization state and installation layout, avoiding duplicate initializations and conflicting install paths while ensuring deterministic behavior across parent and subproject boundaries.
 
 ## Two usage modes
 
@@ -278,10 +288,17 @@ include(${A_FILE})
 
 ## Why this matters
 
-- Configure-time orchestration allows the parent project to react immediately.
-- Deterministic environment propagation avoids subtle platform issues.
-- CI pipelines behave identically to local builds.
-- All third-party artifacts live under a unified `BUILDMASTER_INSTALL_DIR`.
+Handling external dependencies in CMake has traditionally required a mix of build‑time orchestration, custom scripts, and tool‑specific glue. `ExternalProject_Add` postpones all meaningful work until build-time, while `FetchContent` focuses only on retrieving sources. This leaves a gap: the parent project cannot reliably inspect configuration results, adjust logic, or propagate environments during the phase where these decisions actually matter.
+
+Build Master closes that gap by introducing a configure‑time orchestration model. Each external component becomes a small declarative unit with explicit, versioned stages—configure, build, install—generated during CMake’s configure phase. This gives the parent project immediate visibility into artifacts, options, and environment changes, making integration more predictable and reducing the need for ad‑hoc workarounds.
+
+A key aspect of this model is that **all rules are defined during the initial configure step**, even when a component depends on another that has not yet been built. The DSL generates the full set of scripts and configuration fragments up front, including “late‑configure” rules that will only execute once their prerequisites exist. This ensures that the entire dependency graph is known and fixed from the start. As a result, build-time behavior becomes straightforward: the only issues that may appear are genuine compilation or configuration errors originating from the external projects themselves, not from missing or dynamically generated build logic.
+
+The DSL also provides a unified way to orchestrate CMake projects, Meson projects, and Git-based sources under the same rules and installation layout. This consistency is especially helpful in larger codebases where different components rely on different build systems or tooling.
+
+Reproducibility is a core principle. All stages are scripted, version-controlled, and executed with a fully propagated environment, ensuring that local builds, CI pipelines, and recursive subprojects behave the same way. Nested projects share a unified installation directory and initialization state, avoiding duplication and preventing conflicts across dependency trees.
+
+In practice, Build Master turns external dependency handling into a clear, deterministic, and inspectable part of the build system. It reduces friction, improves maintainability, and provides a solid foundation for modular architectures, SDKs, multimedia engines, and any project that relies on external components.
 
 ---
 
