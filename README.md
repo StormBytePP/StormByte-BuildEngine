@@ -1,6 +1,6 @@
 # StormByte BuildMaster
 
-![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)(LICENSE)
+![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
 ![Platform](https://img.shields.io/badge/platform-linux%20%7C%20windows%20%7C%20macos-blue)
 ![CMake](https://img.shields.io/badge/cmake-%3E%3D3.20-blue)
 ![CMake DSL](https://img.shields.io/badge/CMake-DSL-blueviolet)
@@ -13,6 +13,7 @@
 
 - [Overview](#overview)
 - [Why Build Master exists](#why-build-master-exists)
+- [Why this matters](#why-this-matters)
 - [Design goals (brief)](#design-goals-brief)
 - [How to use (quick start)](#how-to-use-quick-start)
  - [Output verbosity](#output-verbosity)
@@ -27,7 +28,6 @@
 - [Git handling](#git-handling)
 - [Examples](#examples)
   - [Dependent components](#dependent-components)
-- [Why this matters](#why-this-matters)
 - [Next steps / where to inspect](#next-steps--where-to-inspect)
 - [License](#license)
 
@@ -67,6 +67,60 @@ Build Master solves these issues by generating deterministic stages during confi
 This makes it trivial to attach post-build actions, inspect installed artifacts, and integrate external projects as if they were native parts of the parent build.
 
 ---
+
+# Why this matters
+
+Managing external dependencies in CMake has traditionally required a patchwork of ad‑hoc scripts, late‑executed logic, and build‑time orchestration that prevents the parent project from making informed decisions during the configuration phase. Tools like `FetchContent` and `ExternalProject_Add` each solve part of the problem, but neither provides a complete, deterministic, configure‑time model for building and integrating external components.
+
+`FetchContent` focuses on retrieving sources, but delegates all configuration to the external project. `ExternalProject_Add` performs configuration and build steps only at **build time**, when it is already too late for the parent project to inspect results, generate import targets, or adjust its own configuration based on the external dependency’s capabilities.
+
+This leaves a structural gap:
+
+**How can a CMake project reason about external dependencies during configure time, before the build begins, and without reinventing orchestration logic for each component?**
+
+Build Master exists to close that gap.
+
+By generating configure/build/install stages **during CMake’s configure phase**, Build Master allows the parent project to:
+
+- inspect artifacts before compilation begins  
+- generate deterministic imported targets  
+- propagate environment variables coherently  
+- unify CMake and Meson projects under a single orchestration model  
+- share a consistent installation layout across recursive dependency trees  
+- version and reproduce all external steps in CI and local builds  
+
+The result is a dependency model that is deterministic, inspectable, and reproducible — turning external integration from a fragile afterthought into a first‑class, declarative part of the build system.
+
+## Comparison: CMake mechanisms vs Build Master
+
+Build Master does not replace CMake’s existing tools. Instead, it extends them by providing deterministic configure‑time orchestration where CMake traditionally defers work to the build phase.
+
+### Conceptual comparison
+
+| Capability | FetchContent | ExternalProject_Add | Build Master |
+|-----------|--------------|---------------------|--------------|
+| Retrieve sources | ✔️ | ✔️ | ✔️ (via Git helpers) |
+| Configure external projects | ❌ | ✔️ (build time) | ✔️ configure time |
+| Inspect artifacts before build | ❌ | ❌ | ✔️ |
+| Deterministic imported targets | ❌ | Partial | ✔️ |
+| Meson integration | ❌ | Manual | ✔️ native |
+| Environment propagation | ❌ | Manual | ✔️ coherent |
+| Recursive usage without conflicts | ❌ | Fragile | ✔️ designed for it |
+| Reproducibility | Medium | Low | High |
+
+### Technical comparison
+
+| Feature | FetchContent | ExternalProject_Add | Build Master |
+|---------|--------------|---------------------|--------------|
+| When configuration happens | N/A | Build time | Configure time |
+| Explicit `<component>_build` / `<component>_install` targets | ❌ | ❌ | ✔️ |
+| Ability to attach post‑build steps to external components | ❌ | ❌ | ✔️ |
+| Unified installation layout | ❌ | Partial | ✔️ |
+| Multi‑build‑system support (CMake + Meson) | ❌ | Manual | ✔️ |
+| Versioned, generated scripts | ❌ | ❌ | ✔️ |
+| CI determinism | Medium | Low | High |
+| Inspect configuration results | ❌ | ❌ | ✔️ |
+| Stability in deep dependency trees | Low | Fragile | ✔️ robust |
 
 ## Design goals (brief)
 
@@ -283,22 +337,6 @@ create_cmake_dependant_component(A_FILE
                                  "libb_install")
 include(${A_FILE})
 ```
-
----
-
-## Why this matters
-
-Handling external dependencies in CMake has traditionally required a mix of build‑time orchestration, custom scripts, and tool‑specific glue. `ExternalProject_Add` postpones all meaningful work until build-time, while `FetchContent` focuses only on retrieving sources. This leaves a gap: the parent project cannot reliably inspect configuration results, adjust logic, or propagate environments during the phase where these decisions actually matter.
-
-Build Master closes that gap by introducing a configure‑time orchestration model. Each external component becomes a small declarative unit with explicit, versioned stages—configure, build, install—generated during CMake’s configure phase. This gives the parent project immediate visibility into artifacts, options, and environment changes, making integration more predictable and reducing the need for ad‑hoc workarounds.
-
-A key aspect of this model is that **all rules are defined during the initial configure step**, even when a component depends on another that has not yet been built. The DSL generates the full set of scripts and configuration fragments up front, including “late‑configure” rules that will only execute once their prerequisites exist. This ensures that the entire dependency graph is known and fixed from the start. As a result, build-time behavior becomes straightforward: the only issues that may appear are genuine compilation or configuration errors originating from the external projects themselves, not from missing or dynamically generated build logic.
-
-The DSL also provides a unified way to orchestrate CMake projects, Meson projects, and Git-based sources under the same rules and installation layout. This consistency is especially helpful in larger codebases where different components rely on different build systems or tooling.
-
-Reproducibility is a core principle. All stages are scripted, version-controlled, and executed with a fully propagated environment, ensuring that local builds, CI pipelines, and recursive subprojects behave the same way. Nested projects share a unified installation directory and initialization state, avoiding duplication and preventing conflicts across dependency trees.
-
-In practice, Build Master turns external dependency handling into a clear, deterministic, and inspectable part of the build system. It reduces friction, improves maintainability, and provides a solid foundation for modular architectures, SDKs, multimedia engines, and any project that relies on external components.
 
 ---
 
